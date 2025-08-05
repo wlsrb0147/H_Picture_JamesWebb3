@@ -1,0 +1,45 @@
+{
+    "name": "DebugInput",
+    "maps": [
+        {
+            "name": "DebugMap",
+            "id": "91c8b0ff-4609-4aea-800d-22e90ecd3293",
+            "actions": [
+                {
+                    "name": "ToggleCursor",
+                    "type": "Button",
+                    "id": "7c99bcef-ce60-4113-8532-b00eaf9a41b5",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "0dd2cd03-bb50-4698-a21c-dfd04b7339f4",
+                    "path": "<Keyboard>/m",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleCursor",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "22d67203-c70f-4827-8ef9-a15e462d4d6b",
+                    "path": "<Keyboard>/d",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleCursor",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}
