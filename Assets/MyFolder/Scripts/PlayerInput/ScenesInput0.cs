@@ -17,7 +17,6 @@ public class ScenesInput0 : RegisterInputControl
     
     private bool _performed;
 
-    [SerializeField] private Other other;
     [SerializeField] private Image circle;
     private int _selectionNum;
 
@@ -155,8 +154,7 @@ public class ScenesInput0 : RegisterInputControl
             case Key.Space:
                 AudioManager.Instance.PlayOneShotAudio(AudioName.Button);
                 PageController.Instance.LoadNextPage();
-                VideoManager.Instance.PlayNextVideoOnOtherPage();
-                other.DisableWithFade();
+                VideoManager.Instance.PlayNextMainVideo();
                 break;
         }
     }

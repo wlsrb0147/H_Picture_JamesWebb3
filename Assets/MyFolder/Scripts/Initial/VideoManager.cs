@@ -270,8 +270,8 @@ public class VideoManager : MonoBehaviour
         
         VideoPlayer player = videoPlayers[page].loopPlayers[index];
         player.Play();
-        player.targetTexture = _currentRenderTexture;
-        source.targetTexture = null;
+        player.targetMaterialRenderer = _currentRenderTexture;
+        source.targetMaterialRenderer = null;
         source.Stop();
         
         Debug.Log($"{player} played, {source} stopped");
@@ -373,7 +373,7 @@ public class VideoManager : MonoBehaviour
             else if (player.isPlaying)
             {
                 player.Stop();
-                player.targetTexture = null;
+                player.targetMaterialRenderer = null;
             }
         }
     }
@@ -470,12 +470,12 @@ public class VideoManager : MonoBehaviour
     [Header("이 트랜스폼의 자식에서 게임오브젝트와 RawImage의 targetTexture 가져옴")]
     [SerializeField] private Transform renderTextureTransform;
     private readonly List<GameObject> _renderTextureObj = new ();
-    private readonly List<RenderTexture> _renderTexture = new ();
+    private readonly List<MeshRenderer> _renderTexture = new ();
     
     private VideoPlayer _currentVideoPlayer;
     private VideoPlayer _nextVideoPlayer;
     
-    private RenderTexture _currentRenderTexture;
+    private MeshRenderer _currentRenderTexture;
     private int _renderTextureIndex;
     
     private int _currentPage = -1;
@@ -522,7 +522,7 @@ public class VideoManager : MonoBehaviour
         {
             GameObject vg = v.gameObject;
             _renderTextureObj.Insert(0, vg);
-            _renderTexture.Insert(0, vg.GetComponent<RawImage>().texture as RenderTexture);
+            _renderTexture.Insert(0, vg.GetComponent<MeshRenderer>());
         }
     }
     
@@ -557,7 +557,7 @@ public class VideoManager : MonoBehaviour
             if (vp != null)
             {
                 // 이름 기반으로 url 등록
-                vp.url = videoDict[vp.name];
+                //vp.url = videoDict[vp.name];
                 vp.audioOutputMode = VideoAudioOutputMode.Direct;
                 vp.SetDirectAudioVolume(0, volumeDict[vp.name]);
             }
@@ -605,7 +605,7 @@ public class VideoManager : MonoBehaviour
         source.prepareCompleted -= InitializeVideo;
         _notAllowedToChangeControl.Clear();
         source.Play();
-        source.targetTexture = _renderTexture[0];
+        source.targetMaterialRenderer = _renderTexture[0];
         _currentRenderTexture = _renderTexture[0];
         _renderTextureIndex = 0;
         _currentIndex = 0;
@@ -618,6 +618,7 @@ public class VideoManager : MonoBehaviour
     private void RegisterEvents()
     {
         videoPlayers[1].mainPlayers[0].started += Video11Start;
+        videoPlayers[1].mainPlayers[0].started += PrePareEndingVideo;
         
         for (int i = 2; i < videoPlayers.Length; i++)
         {
@@ -638,7 +639,7 @@ public class VideoManager : MonoBehaviour
         for (int i = 2; i < videoPlayers.Length; i++)
         {
             yield return new WaitForSeconds(0.5f);
-            videoPlayers[i].mainPlayers[^1].Prepare();
+            videoPlayers[i].mainPlayers[0].Prepare();
         }
     }
     
@@ -679,6 +680,16 @@ public class VideoManager : MonoBehaviour
     private void PrepareEnding(VideoPlayer source)
     {
         ChangeNextVideo(0, 0);
+    }
+    
+    public void PrePareEndingVideo(VideoPlayer v)
+    {
+        VideoPlayer vp = videoPlayers[0].mainPlayers[0];
+        
+        if (vp)
+        {
+            vp.Prepare();
+        }
     }
 
     public void PrePareEndingVideo()
@@ -742,7 +753,7 @@ public class VideoManager : MonoBehaviour
         _inputManager.AcceptInput = false;
         _nextVideoPlayer.Play();
         Debug.Log($"Play Video : {_nextVideoPlayer}");
-        _nextVideoPlayer.targetTexture = _currentRenderTexture;
+        _nextVideoPlayer.targetMaterialRenderer = _currentRenderTexture;
         
         if (_loopAddedVideo.ContainsKey(_currentVideoPlayer))
         {
@@ -751,15 +762,15 @@ public class VideoManager : MonoBehaviour
             
             VideoPlayer player = videoPlayers[page].loopPlayers[index];
 
-            if (player.targetTexture)
+            if (player.targetMaterialRenderer)
             {
-                player.targetTexture = null;
+                player.targetMaterialRenderer = null;
             }
             
             player.Stop();
         }
         
-        _currentVideoPlayer.targetTexture = null;
+        _currentVideoPlayer.targetMaterialRenderer = null;
         _currentVideoPlayer.Stop();
         Debug.Log($"Stop Video : {_currentVideoPlayer}");
             
@@ -779,7 +790,7 @@ public class VideoManager : MonoBehaviour
         ++_renderTextureIndex;
         _playerToStopLater = _currentVideoPlayer;
         _nextVideoPlayer.Play();
-        _nextVideoPlayer.targetTexture = _renderTexture[_renderTextureIndex];
+        _nextVideoPlayer.targetMaterialRenderer = _renderTexture[_renderTextureIndex];
         _currentRenderTexture = _renderTexture[_renderTextureIndex];
         _renderTextureObj[_renderTextureIndex].SetActive(true);
         if (_loopAddedVideo.ContainsKey(_currentVideoPlayer))
@@ -789,9 +800,9 @@ public class VideoManager : MonoBehaviour
             
             VideoPlayer player = videoPlayers[page].loopPlayers[index];
 
-            if (player.targetTexture)
+            if (player.targetMaterialRenderer)
             {
-                player.targetTexture = null;
+                player.targetMaterialRenderer = null;
             }
             
             player.Stop();
@@ -811,7 +822,7 @@ public class VideoManager : MonoBehaviour
     {
         _renderTextureObjToCloseLater.SetActive(false);
         _playerToStopLater.Stop();
-        _playerToStopLater.targetTexture = null;
+        _playerToStopLater.targetMaterialRenderer = null;
         
         if (_loopAddedVideo.ContainsKey(_playerToStopLater))
         {
@@ -820,9 +831,9 @@ public class VideoManager : MonoBehaviour
             
             VideoPlayer player = videoPlayers[page].loopPlayers[index];
 
-            if (player.targetTexture)
+            if (player.targetMaterialRenderer)
             {
-                player.targetTexture = null;
+                player.targetMaterialRenderer = null;
             }
             
             player.Stop();
@@ -836,7 +847,7 @@ public class VideoManager : MonoBehaviour
         RemoveOrAddVideosOnHashSet(page);
         
         videoPlayers[page].mainPlayers[index].Play();
-        videoPlayers[page].mainPlayers[index].targetTexture = _currentRenderTexture;
+        videoPlayers[page].mainPlayers[index].targetMaterialRenderer = _currentRenderTexture;
         
         PrepareNextVideo(videoPlayers[page].mainPlayers[index]);
     }
@@ -863,7 +874,7 @@ public class VideoManager : MonoBehaviour
 
         _notAllowedToChangeControl.Clear();
         videoPlayers[0].mainPlayers[0].Play();
-        videoPlayers[0].mainPlayers[0].targetTexture = _renderTexture[0];
+        videoPlayers[0].mainPlayers[0].targetMaterialRenderer = _renderTexture[0];
         
         _currentRenderTexture = _renderTexture[0];
         _renderTextureIndex = 0;
@@ -876,14 +887,14 @@ public class VideoManager : MonoBehaviour
     }
 
     // 렌더텍스쳐 색상 Color로 변경
-    public void ChangeTextureToSingleColor(Color color)
+    /*public void ChangeTextureToSingleColor(Color color)
     {
         _currentVideoPlayer.Stop();
         RenderTexture rt = RenderTexture.active;
         RenderTexture.active = _currentRenderTexture;
         GL.Clear(false,true, color);
         RenderTexture.active = rt;
-    }
+    }*/
 
 
     
