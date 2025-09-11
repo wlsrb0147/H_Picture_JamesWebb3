@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using Debug = DebugEx;
 using UnityEngine.InputSystem;
@@ -9,6 +10,10 @@ using UnityEngine.UI;
 
 public class ScenesInput0 : RegisterInputControl
 {
+    private static readonly int SELECT = Animator.StringToHash("Select");
+    private static readonly int SPD = Animator.StringToHash("Spd");
+    private static readonly int END = Animator.StringToHash("End");
+
     // 에디터에서 현재 입력 페이지를 보기위한 Serialize
     [SerializeField] private int currentPage;
     
@@ -18,7 +23,9 @@ public class ScenesInput0 : RegisterInputControl
     private bool _performed;
 
     [SerializeField] private Image circle;
+    [SerializeField] private Animator[] anim;
     private int _selectionNum;
+    [SerializeField] private GameObject effect;
 
     private int SelectionNum
     {
@@ -50,6 +57,15 @@ public class ScenesInput0 : RegisterInputControl
     {
         base.Start();
         SetCurrentInput(0,0);
+
+        int len = clips.Length;
+        _clipLength = new float[len];
+
+        for (int i = 0; i < len; i++)
+        {
+            _clipLength[i] = clips[i].length;
+        }
+
     }
     
     public override void ChangeIndex()
@@ -72,6 +88,8 @@ public class ScenesInput0 : RegisterInputControl
                 InputManager.Instance.ResetEnable = false;
                 break;
             case (1 , 0) :
+                
+                InputManager.Instance.ResetEnable = true;
                 _selectionNum = 0;
                 circle.rectTransform.anchoredPosition = circlePos[0];
                 break;
@@ -81,10 +99,6 @@ public class ScenesInput0 : RegisterInputControl
             case (>= 2, var i) when i % 2 == 1 :
                 // 입력 유지 처리
                 AudioManager.Instance.PlayAudio(AudioName.StickUp, _performed);
-                VideoManager.Instance.PauseVideo(_performed);
-                break;
-            case (>= 2, var i) when i % 2 == 0 :
-                AudioManager.Instance.PlayAudio(AudioName.StickUp, false);
                 break;
             default:
                 break;
@@ -116,8 +130,8 @@ public class ScenesInput0 : RegisterInputControl
         {
             (0, 0) => P0I0,
             (1, 0) => P1I0,
-            (1, 1) => P1I1,
-            ( >= 2, var i) when i % 2 == 1 => P2I1,
+            (2, 0) => P2I0,
+
             _ => DefaultInput
         };
 
@@ -171,40 +185,107 @@ public class ScenesInput0 : RegisterInputControl
             case Key.RightArrow:
                 ++SelectionNum;
                 break;
-        }
-    }
-
-    private void P1I1(Key context, bool performed)
-    {
-        if (!performed) return;
-        
-        switch (context)
-        {
-            case Key.LeftArrow:
-                --SelectionNum;
-                break;
-            case Key.RightArrow:
-                ++SelectionNum;
-                break;
             case Key.Space:
                 // 선택
+                anim[_selectionNum].gameObject.SetActive(true);
                 AudioManager.Instance.PlayOneShotAudio(AudioName.Button);
-                VideoManager.Instance.SelectVideo(SelectionNum);
+                AudioManager.Instance.PlayOneShotAudio((AudioName)(SelectionNum+1));
+                effect.SetActive(true);
                 break;
         }
     }
     
-    private void P2I1(Key context, bool performed)
+    private void P2I0(Key context, bool performed)
     {
-        Debug.Log($"Page0 Index4 Selected : {context}");
+        Debug.Log($"Page2 Index0 Selected : {context}");
         switch (context)
         {
             case Key.UpArrow:
+                anim[_selectionNum].SetFloat(SPD, performed ? 1 : 0);
+                CurrentSpd = performed ? 1 : 0;
+                break;
+            case Key.DownArrow:
+                anim[_selectionNum].SetFloat(SPD, performed ? -1 : 0);
+                CurrentSpd = performed ? -1 : 0;
                 break;
             case Key.Space:
+                PageController.Instance.OpenAndClosePage(1);
                 break;
         }
     }
     #endregion
+
+    private void GetBounds(out bool atStart, out bool atEnd)
+    {
+        atStart = atEnd = false;
+
+        // ① 네가 쓰는 프레임 트래커가 있으면 그걸 우선
+        // if (GetAnimFrame.Instance) {
+        //     int f = GetAnimFrame.Instance.currentFrame;
+        //     atStart = f <= 0;
+        //     atEnd   = f >= GetAnimFrame.Instance.maxFrame;
+        //     return;
+        // }
+
+        // ② Animator 기준(비루프 클립 가정)
+        var st = anim[_selectionNum].GetCurrentAnimatorStateInfo(0);
+        var clips = anim[_selectionNum].GetCurrentAnimatorClipInfo(0);
+        bool looping = clips.Length > 0 && clips[0].clip && clips[0].clip.isLooping;
+
+        if (!looping)
+        {
+            float nt = st.normalizedTime;     // 비루프면 0~1 구간이 유효
+            atStart = nt <= 0.001f;
+            atEnd   = nt >= 0.999f;
+        }
+    }
+
+    [SerializeField] private AnimationClip[] clips;
+    private float[] _clipLength;
+    private int currentFrame;
+    private const float FRAMERATE = 30;
+
+    private float _currentSpd;
+    private float CurrentSpd
+    {
+        get =>  _currentSpd;
+        set
+        {
+            anim[_selectionNum].SetFloat(SPD, value);
+            _currentSpd = value;
+        }
+    }
+    
+    private void Update()
+    {
+        if (!anim[_selectionNum] || !anim[_selectionNum].isActiveAndEnabled) return ;
+        
+        var state = anim[_selectionNum].GetCurrentAnimatorStateInfo(0);
+        var infos = anim[_selectionNum].GetCurrentAnimatorClipInfo(0);
+        if (infos.Length == 0) return;
+        
+        AnimationClip playingClip = infos[0].clip;
+        int idx = Array.IndexOf(clips, playingClip);
+        if (idx < 0) return;
+
+        float length = _clipLength[idx];
+        int endFrame = Mathf.Max(0, Mathf.FloorToInt(length * FRAMERATE) - 1);
+        
+        float normalized = state.normalizedTime;
+
+        if (normalized >= 1)
+        {
+            return;   
+        }
+        float timeSec = normalized * length;
+
+        currentFrame = Mathf.FloorToInt(timeSec * FRAMERATE);
+
+        //Debug.Log("Current : " + currentFrame + ", EndFrame : " + endFrame);
+        if (currentFrame <= 0 && CurrentSpd <= -1 || currentFrame >= endFrame && CurrentSpd >= 1)
+        {
+            CurrentSpd = 0;
+        }
+    }
 
 }

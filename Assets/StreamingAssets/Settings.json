@@ -12,49 +12,20 @@
   },
   "audioSetting":
   [
-    {"fileName": "Button.mp3", "volume": 0.8},
-    {"fileName": "StickHorizon.mp3", "volume": 0.8},
-    {"fileName": "StickUp.mp3", "volume": 0.8}
+    {"fileName": "Button.mp3", "volume": 0.6},
+    {"fileName": "StickHorizon.mp3", "volume": 0.6},
+    {"fileName": "StickUp.mp3", "volume": 0.6},
+    {"fileName": "Pillar.mp3", "volume": 1},
+    {"fileName": "BlackHole.mp3", "volume": 1},
+    {"fileName": "Saturn.mp3", "volume": 1},
+    {"fileName": "South.mp3", "volume": 1},
+    {"fileName": "Take.mp3", "volume": 0.8}
   ],
   "videoSetting" :
   [
     {"fileName" : "000_ML.mp4", "volume": 0.8},
     {"fileName" : "100.mp4", "volume": 0.8},
-    {"fileName" : "101_ML.mp4", "volume": 0.8},
-    {"fileName" : "200.mp4", "volume": 0.8},
-    {"fileName" : "201.mp4", "volume": 0.8},
-    {"fileName" : "202.mp4", "volume": 0.8},
-    {"fileName" : "203.mp4", "volume": 0.8},
-    {"fileName" : "204.mp4", "volume": 0.8},
-    {"fileName" : "205.mp4", "volume": 0.8},
-    {"fileName" : "206.mp4", "volume": 0.8},
-    {"fileName" : "207.mp4", "volume": 0.8},
-    {"fileName" : "208.mp4", "volume": 0.8},
-    {"fileName" : "300.mp4", "volume": 0.8},
-    {"fileName" : "301.mp4", "volume": 0.8},
-    {"fileName" : "302.mp4", "volume": 0.8},
-    {"fileName" : "303.mp4", "volume": 0.8},
-    {"fileName" : "304.mp4", "volume": 0.8},
-    {"fileName" : "305.mp4", "volume": 0.8},
-    {"fileName" : "306.mp4", "volume": 0.8},
-    {"fileName" : "400.mp4", "volume": 0.8},
-    {"fileName" : "401.mp4", "volume": 0.8},
-    {"fileName" : "402.mp4", "volume": 0.8},
-    {"fileName" : "403.mp4", "volume": 0.8},
-    {"fileName" : "404.mp4", "volume": 0.8},
-    {"fileName" : "405.mp4", "volume": 0.8},
-    {"fileName" : "406.mp4", "volume": 0.8},
-    {"fileName" : "407.mp4", "volume": 0.8},
-    {"fileName" : "408.mp4", "volume": 0.8},
-    {"fileName" : "500.mp4", "volume": 0.8},
-    {"fileName" : "501.mp4", "volume": 0.8},
-    {"fileName" : "502.mp4", "volume": 0.8},
-    {"fileName" : "503.mp4", "volume": 0.8},
-    {"fileName" : "504.mp4", "volume": 0.8},
-    {"fileName" : "505.mp4", "volume": 0.8},
-    {"fileName" : "506.mp4", "volume": 0.8},
-    {"fileName" : "507.mp4", "volume": 0.8},
-    {"fileName" : "508.mp4", "volume": 0.8}
+    {"fileName" : "101_ML.mp4", "volume": 0.8}
   ],
   "arduinoSetting" : 
   {

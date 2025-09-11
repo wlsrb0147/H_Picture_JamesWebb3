@@ -12,8 +12,13 @@ using UnityEngine.Video;
 public enum AudioName
 {
     Button = 0,
-    StickHorizon = 1,
-    StickUp = 2,
+    South = 1,
+    Saturn = 2,
+    BlackHole = 3,
+    Pillar = 4,
+    StickHorizon = 5,
+    StickUp = 6,
+    Take = 7,
 }
 
 public class AudioManager : MonoBehaviour
