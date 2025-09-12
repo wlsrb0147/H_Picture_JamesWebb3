@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Debug = DebugEx;
 using UnityEngine.InputSystem;
@@ -17,6 +18,9 @@ public interface InputControl
 // 입력 제어
 public class InputManager : MonoBehaviour
 {
+
+    
+    
     // page, index 기반으로 입력 제어
     
     private static InputManager _instance;
@@ -53,8 +57,12 @@ public class InputManager : MonoBehaviour
 
     public bool AcceptInput
     {
-        get;
-        set;
+        get => _acceptInput;
+        set
+        {
+            Debug.Log("AcceptInput Changed" + _acceptInput + " to " + value );
+            _acceptInput = value;
+        }
     }
 
     // 인덱스 변경
@@ -76,8 +84,16 @@ public class InputManager : MonoBehaviour
         }
     }
 
+    
+    [SerializeField] PlayerInput pi;
     private void Start()
     {
+        
+        Debug.Log($"[PI] scheme={pi.currentControlScheme}");
+        foreach (var d in pi.devices) Debug.Log($"[PI] device={d}");
+        foreach (var a in pi.currentActionMap.actions)
+            Debug.Log($"[PI] {a.name} -> {string.Join(", ", a.controls.Select(c=>c.path))}");
+        
         // 입력없을 때 초기화 시간
         _resetStandard = JsonSaver.Instance.Settings.resetStandard;
         
@@ -138,8 +154,10 @@ public class InputManager : MonoBehaviour
         {
             case KeyControl keyControl:
                 key = keyControl.keyCode;
+                Debug.Log("KeyboardControl");
                 break;
             case ButtonControl buttonControl:
+                Debug.Log("ButtonControl");
                 key = map.GetValueOrDefault(buttonControl.name, Key.None);
 
                 if (key == Key.None)
@@ -165,15 +183,17 @@ public class InputManager : MonoBehaviour
             return;
         }
         
-        Debug.Log($"Keyboard Input Come : {key}");
+        Debug.Log($"Keyboard Input Come : {key}, {performed}");
         
         if (performed)
         {
-            _holdingKeys.Add(key);
+            if (_holdingKeys.Add(key)) // 새로 추가된 경우에만
+                Debug.Log($"HoldingKeys[{_holdingKeys.Count}] : {string.Join(", ", _holdingKeys)}");
         }
         else
         {
-            _holdingKeys.Remove(key);
+            if (_holdingKeys.Remove(key)) // 실제로 제거된 경우에만
+                Debug.Log($"HoldingKeys[{_holdingKeys.Count}] : {string.Join(", ", _holdingKeys)}");
         }
 
         if (key == Key.Space)
@@ -190,7 +210,8 @@ public class InputManager : MonoBehaviour
         if (!AcceptInput) return;
         ExecuteInput(key, performed);
     }
-    
+
+ 
     // SerialController에서 전달받은 키보드 입력
     // SerialController에는 string을 key로 변환시켜 이 함수를 실행
     // index는 신호를 보낸 아두이노의 Thread Index, 여러 아두이노를 사용할 때 필요함
@@ -248,6 +269,12 @@ public class InputManager : MonoBehaviour
     
     private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.DownArrow))
+        {
+            Debug.Log("Down Arrow Pressed");
+        }
+        
+        
         if (PressReset)
         {
             _pressTimeLeft -= Time.unscaledDeltaTime;

@@ -22,7 +22,7 @@
                     "path": "<Keyboard>/m",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": ";New Control Scheme",
                     "action": "ToggleCursor",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -33,7 +33,7 @@
                     "path": "<Keyboard>/d",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": ";New Control Scheme",
                     "action": "ToggleCursor",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -41,5 +41,17 @@
             ]
         }
     ],
-    "controlSchemes": []
+    "controlSchemes": [
+        {
+            "name": "New Control Scheme",
+            "bindingGroup": "New Control Scheme",
+            "devices": [
+                {
+                    "devicePath": "<Keyboard>",
+                    "isOptional": false,
+                    "isOR": false
+                }
+            ]
+        }
+    ]
 }

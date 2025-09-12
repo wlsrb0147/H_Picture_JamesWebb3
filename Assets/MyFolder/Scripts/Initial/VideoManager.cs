@@ -493,7 +493,7 @@ public class VideoManager : MonoBehaviour
     private GameObject _renderTextureObjToCloseLater;
 
     [SerializeField] private ScenesInput0 input;
-    
+
     private void Awake()
     {
         Instance = this;
@@ -815,6 +815,12 @@ public class VideoManager : MonoBehaviour
             
             player.Stop();
         }
+    }
+
+    public void SetInitFrame()
+    {
+        _currentVideoPlayer.frame = 0;
+        _currentVideoPlayer.Play();
     }
 
     // 비디오를 갑자기 바꿔야 할 때 실행

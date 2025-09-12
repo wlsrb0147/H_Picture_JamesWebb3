@@ -88,7 +88,7 @@ public class ScenesInput0 : RegisterInputControl
                 InputManager.Instance.ResetEnable = false;
                 break;
             case (1 , 0) :
-                
+                VideoManager.Instance.SetInitFrame();
                 InputManager.Instance.ResetEnable = true;
                 _selectionNum = 0;
                 circle.rectTransform.anchoredPosition = circlePos[0];
@@ -97,6 +97,10 @@ public class ScenesInput0 : RegisterInputControl
                 InputManager.Instance.ResetEnable = true;
                 break;
             case (>= 2, var i) when i % 2 == 1 :
+                if (index == 0)
+                {
+                    InputManager.Instance.AcceptInput = true;
+                }
                 // 입력 유지 처리
                 AudioManager.Instance.PlayAudio(AudioName.StickUp, _performed);
                 break;
@@ -187,6 +191,9 @@ public class ScenesInput0 : RegisterInputControl
                 break;
             case Key.Space:
                 // 선택
+                VideoManager.Instance.PauseVideo(false);
+                Debug.Log(_selectionNum + "is selected");
+                InputManager.Instance.AcceptInput = false;
                 anim[_selectionNum].gameObject.SetActive(true);
                 AudioManager.Instance.PlayOneShotAudio(AudioName.Button);
                 AudioManager.Instance.PlayOneShotAudio((AudioName)(SelectionNum+1));
@@ -209,36 +216,15 @@ public class ScenesInput0 : RegisterInputControl
                 CurrentSpd = performed ? -1 : 0;
                 break;
             case Key.Space:
-                PageController.Instance.OpenAndClosePage(1);
+                if (!performed) return;
+                if (!effect.activeSelf)
+                { 
+                    PageController.Instance.OpenAndClosePage(1);
+                }
                 break;
         }
     }
     #endregion
-
-    private void GetBounds(out bool atStart, out bool atEnd)
-    {
-        atStart = atEnd = false;
-
-        // ① 네가 쓰는 프레임 트래커가 있으면 그걸 우선
-        // if (GetAnimFrame.Instance) {
-        //     int f = GetAnimFrame.Instance.currentFrame;
-        //     atStart = f <= 0;
-        //     atEnd   = f >= GetAnimFrame.Instance.maxFrame;
-        //     return;
-        // }
-
-        // ② Animator 기준(비루프 클립 가정)
-        var st = anim[_selectionNum].GetCurrentAnimatorStateInfo(0);
-        var clips = anim[_selectionNum].GetCurrentAnimatorClipInfo(0);
-        bool looping = clips.Length > 0 && clips[0].clip && clips[0].clip.isLooping;
-
-        if (!looping)
-        {
-            float nt = st.normalizedTime;     // 비루프면 0~1 구간이 유효
-            atStart = nt <= 0.001f;
-            atEnd   = nt >= 0.999f;
-        }
-    }
 
     [SerializeField] private AnimationClip[] clips;
     private float[] _clipLength;
